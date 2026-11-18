@@ -1,5 +1,4 @@
 {
-  "varian": "si",
-  "fakultas_default": "Fakultas Matematika dan Ilmu Pengetahuan Alam",
-  "prodi_default": "Program Studi Sistem Informasi"
+  "varian": "umum",
+  "catatan": "Berkas ini dipertahankan untuk kompatibilitas mundur. Sejak v5 format tidak lagi dipilih dari sini, tetapi dari references/formats.json berdasarkan meta.format atau meta.universitas/fakultas/prodi."
 }

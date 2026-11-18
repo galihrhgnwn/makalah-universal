@@ -1,0 +1,5 @@
+node_modules/
+hasil/
+*.docx
+*_preview/
+__pycache__/

@@ -1,5 +1,15 @@
 # Catatan perubahan
 
+## v5.0.0 (2026-11-18)
+
+- Repositori dinamai ulang menjadi **makalah-universal**: bukan lagi khusus Sistem Informasi UNRI, melainkan generator makalah untuk berbagai perguruan tinggi.
+- Format dokumen dipilih lewat `references/formats.json`: `meta.format` (id eksplisit) atau otomatis dari `universitas`/`fakultas`/`prodi`. Bila tidak cocok, dipakai format umum (A4, margin 4-3-3-3 cm, Times New Roman 12, spasi 1,5, APA 7).
+- Format awal yang didukung: umum, Sistem Informasi FMIPA UNRI, Fakultas Teknik UNRI, Fakultas Pertanian UNRI, FEB UGM, Kimia UGM. Menambah format tinggal menambah entri di `references/formats.json`.
+- Makalah individu: `meta.jumlah_anggota = 1` membuat cover satu baris "Nama Mahasiswa". Kelompok tetap "Nama Anggota 1..n".
+- Margin, spasi, ukuran font, dan lebar teks tidak lagi dikunci; mengikuti format terpilih. `finalize.py` membaca lebar teks dari docx sehingga daftar isi menyesuaikan.
+- Ditambah `package.json`, `package-lock.json`, dan `.gitignore` (dependency `docx`; skrip `build`/`check`/`preview`).
+- Perbaikan: font isi memakai ukuran format (bukan selalu 12 pt), cover menyembunyikan baris identitas kosong, tabel nama menyesuaikan lebar teks, jumlah anggota minimum 1.
+
 ## v4.0.0 (2026-10-23)
 
 Fitur baru:

@@ -1,4 +1,4 @@
-# Skema content.json (v4)
+# Skema content.json (v5)
 
 ```json
 {
@@ -70,6 +70,8 @@
 | `ref_config.umur_maks_tahun` | Sumber paling lama berumur sekian tahun dari tahun ini. Atau pakai `tahun_min` (angka tahun) langsung. |
 | `ref_config.min_indonesia` | Minimal sumber berbahasa Indonesia. Bahasa dibaca dari `verifikasi_referensi[].bahasa`; tanpa itu dihitung perkiraan dan hanya jadi peringatan. |
 | `lewati_sitasi` | Daftar teks sitasi yang sengaja dilewati validator (mis. nama tokoh yang kebetulan berpola sitasi). |
+| `format` | Opsional. Id format dari `references/formats.json` (mis. `unri:fmipa:si`, `ugm:feb`). Kosong = dipilih otomatis dari `universitas`/`fakultas`/`prodi`; bila tidak cocok, format umum. |
+| `jumlah_anggota` | `1` = individu (cover "Nama Mahasiswa", tanpa nomor). Lebih dari 1 = kelompok ("Nama Anggota 1..n"). |
 
 ## Tipe blok (`blocks`)
 

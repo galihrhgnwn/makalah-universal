@@ -1,0 +1,68 @@
+{
+  "meta": {
+    "judul": "Contoh Makalah Format Umum",
+    "matkul": "Bahasa Indonesia",
+    "dosen": "Nama Dosen, M.Pd.",
+    "universitas": "Universitas Contoh Nusantara",
+    "tahun": "2026",
+    "jumlah_anggota": 1,
+    "kota": "Jakarta",
+    "bulan_tahun": "November 2026",
+    "ref_config": { "jumlah_min": 2, "jumlah_maks": 8, "umur_maks_tahun": 10, "min_indonesia": 1 }
+  },
+  "kata_pengantar": [
+    "Puji syukur kami panjatkan kepada Tuhan Yang Maha Esa atas terselesaikannya makalah contoh ini.",
+    "Terima kasih kami sampaikan kepada dosen pengampu atas bimbingannya.",
+    "Kami menyadari makalah ini belum sempurna, sehingga kritik dan saran sangat kami harapkan."
+  ],
+  "bab": [
+    {
+      "judul": "Pendahuluan",
+      "sections": [
+        { "judul": "Latar Belakang", "blocks": [
+          { "t": "p", "text": "Makalah ini dibuat sebagai contoh format umum. Alfa (2023) menjelaskan bahwa penulisan ilmiah perlu mengikuti kaidah yang berlaku." }
+        ]},
+        { "judul": "Rumusan Masalah", "blocks": [
+          { "t": "list", "items": ["Apa itu format umum makalah?", "Bagaimana struktur makalah yang benar?"] }
+        ]},
+        { "judul": "Tujuan Penulisan", "blocks": [
+          { "t": "list", "items": ["Menjelaskan format umum makalah.", "Menjelaskan struktur makalah yang benar."] }
+        ]},
+        { "judul": "Manfaat Penulisan", "blocks": [
+          { "t": "p", "text": "Makalah ini diharapkan membantu pembaca memahami format umum penulisan makalah." }
+        ]}
+      ]
+    },
+    {
+      "judul": "Pembahasan",
+      "sections": [
+        { "judul": "Struktur Makalah", "blocks": [
+          { "t": "p", "text": "Struktur makalah umum terdiri atas cover, daftar isi, kata pengantar, bab pendahuluan, bab pembahasan, bab penutup, dan daftar pustaka (Beta & Gamma, 2022)." }
+        ]},
+        { "judul": "Penulisan Referensi", "blocks": [
+          { "t": "p", "text": "Daftar pustaka ditulis dengan gaya APA 7 secara alfabetis." }
+        ]}
+      ]
+    },
+    {
+      "judul": "Penutup",
+      "sections": [
+        { "judul": "Kesimpulan", "blocks": [
+          { "t": "p", "text": "Format umum makalah mengikuti struktur baku yang sudah dijelaskan." }
+        ]},
+        { "judul": "Saran", "blocks": [
+          { "t": "p", "text": "Pembaca disarankan menyesuaikan format dengan pedoman kampusnya." }
+        ]}
+      ]
+    }
+  ],
+  "daftar_pustaka": [
+    "Alfa, A. (2023). Penulisan ilmiah untuk mahasiswa. *Jurnal Contoh*, *1*(1), 1–10. https://doi.org/10.0000/contoh.alfa",
+    "Beta, B., & Gamma, C. (2022). Struktur makalah yang benar. *Journal of Example*, *2*(2), 11–20. https://doi.org/10.0000/contoh.beta"
+  ],
+  "verifikasi_referensi": [
+    { "ref": "Alfa, A. (2023)", "ditemukan_lewat": "Pencarian web", "dicek_lewat": "contoh", "bahasa": "id" },
+    { "ref": "Beta, B., & Gamma, C. (2022)", "ditemukan_lewat": "Pencarian web", "dicek_lewat": "contoh", "bahasa": "en" }
+  ],
+  "sumber_dibuang": []
+}

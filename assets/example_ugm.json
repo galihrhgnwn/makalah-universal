@@ -1,0 +1,71 @@
+{
+  "meta": {
+    "judul": "Contoh Makalah FEB UGM",
+    "matkul": "Ekonomi Manajerial",
+    "dosen": "Nama Dosen, M.Ec.",
+    "format": "ugm:feb",
+    "universitas": "UNIVERSITAS GADJAH MADA",
+    "fakultas": "Fakultas Ekonomika dan Bisnis",
+    "prodi": "Program Studi Manajemen",
+    "tahun": "2026",
+    "jumlah_anggota": 3,
+    "kota": "Yogyakarta",
+    "bulan_tahun": "November 2026",
+    "ref_config": { "jumlah_min": 2, "jumlah_maks": 8, "umur_maks_tahun": 10, "min_indonesia": 1 }
+  },
+  "kata_pengantar": [
+    "Puji syukur kami panjatkan kepada Tuhan Yang Maha Esa atas terselesaikannya makalah contoh ini.",
+    "Terima kasih kami sampaikan kepada dosen pengampu atas bimbingannya.",
+    "Kami menyadari makalah ini belum sempurna, sehingga kritik dan saran sangat kami harapkan."
+  ],
+  "bab": [
+    {
+      "judul": "Pendahuluan",
+      "sections": [
+        { "judul": "Latar Belakang", "blocks": [
+          { "t": "p", "text": "Makalah ini dibuat sebagai contoh format FEB UGM. Alfa (2023) menjelaskan bahwa penulisan ilmiah perlu mengikuti kaidah yang berlaku." }
+        ]},
+        { "judul": "Rumusan Masalah", "blocks": [
+          { "t": "list", "items": ["Apa saja komponen makalah di FEB UGM?", "Bagaimana cara menulis referensi yang benar?"] }
+        ]},
+        { "judul": "Tujuan Penulisan", "blocks": [
+          { "t": "list", "items": ["Menjelaskan komponen makalah di FEB UGM.", "Menjelaskan cara menulis referensi."] }
+        ]},
+        { "judul": "Manfaat Penulisan", "blocks": [
+          { "t": "p", "text": "Makalah ini diharapkan membantu pembaca memahami format penulisan di FEB UGM." }
+        ]}
+      ]
+    },
+    {
+      "judul": "Pembahasan",
+      "sections": [
+        { "judul": "Komponen Makalah", "blocks": [
+          { "t": "p", "text": "Komponen makalah di FEB UGM meliputi cover, daftar isi, kata pengantar, bab, dan daftar pustaka (Beta & Gamma, 2022)." }
+        ]},
+        { "judul": "Penulisan Referensi", "blocks": [
+          { "t": "p", "text": "Daftar pustaka ditulis dengan gaya APA 7 secara alfabetis." }
+        ]}
+      ]
+    },
+    {
+      "judul": "Penutup",
+      "sections": [
+        { "judul": "Kesimpulan", "blocks": [
+          { "t": "p", "text": "Format makalah FEB UGM mengikuti struktur baku yang sudah dijelaskan." }
+        ]},
+        { "judul": "Saran", "blocks": [
+          { "t": "p", "text": "Pembaca disarankan membaca pedoman resmi FEB UGM." }
+        ]}
+      ]
+    }
+  ],
+  "daftar_pustaka": [
+    "Alfa, A. (2023). Penulisan ilmiah untuk mahasiswa. *Jurnal Contoh*, *1*(1), 1–10. https://doi.org/10.0000/contoh.alfa",
+    "Beta, B., & Gamma, C. (2022). Struktur makalah yang benar. *Journal of Example*, *2*(2), 11–20. https://doi.org/10.0000/contoh.beta"
+  ],
+  "verifikasi_referensi": [
+    { "ref": "Alfa, A. (2023)", "ditemukan_lewat": "Pencarian web", "dicek_lewat": "contoh", "bahasa": "id" },
+    { "ref": "Beta, B., & Gamma, C. (2022)", "ditemukan_lewat": "Pencarian web", "dicek_lewat": "contoh", "bahasa": "en" }
+  ],
+  "sumber_dibuang": []
+}

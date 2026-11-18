@@ -22,7 +22,12 @@ args = ap.parse_args()
 
 raw, hpath, out = args.raw, args.headings, args.out
 heads = json.load(open(hpath, encoding='utf8'))
-TEXT_W = 7937
+def text_width(docx):
+    with zipfile.ZipFile(docx) as z:
+        xml = z.read('word/document.xml').decode('utf8')
+    m = re.search(r'<w:pgMar[^>]*w:left="(\d+)"', xml)
+    r = re.search(r'<w:pgMar[^>]*w:right="(\d+)"', xml)
+    return (11906 - int(m.group(1)) - int(r.group(1))) if m and r else 7937
 ROMAN = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x']
 SKILL_SOFFICE = '/mnt/skills/public/docx/scripts/office/soffice.py'
 
@@ -57,7 +62,11 @@ def pages_of(pdf):
 
 def match(lines, page):
     if len(lines) == 2:  # "BAB I" lalu judul bab di baris berikutnya
-        return any(page[i] == lines[0] and page[i + 1].startswith(lines[1][:25]) for i in range(len(page) - 1))
+        for i in range(len(page) - 1):
+            if page[i] == lines[0] and (page[i + 1].startswith(lines[1][:25]) or lines[1].startswith(page[i + 1][:25])):
+                return True
+        flat = ' '.join(lines).replace(' ', '')
+        return any(l.replace(' ', '') == flat for l in page)  # fallback: satu baris
     key = lines[0][:40]
     return any(l.startswith(key) for l in page)
 
@@ -107,6 +116,7 @@ def inject(src, entries, dst):
 
 tmp = tempfile.mkdtemp()
 base = args.paginasi or raw  # berkas yang dipakai untuk menghitung halaman
+TEXT_W = text_width(base)
 entries = compute(pages_of(to_pdf(base, tmp)))
 os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
 for _ in range(3):  # daftar isi yang panjang bisa menggeser halaman, hitung ulang sampai stabil

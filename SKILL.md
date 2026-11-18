@@ -1,53 +1,67 @@
 ---
-name: "makalah-unri-si"
-description: "Varian makalah-unri khusus Program Studi Sistem Informasi, FMIPA Universitas Riau. Membuat makalah kuliah berbahasa Indonesia dalam format .docx siap kumpul (cover dengan logo UNRI, fakultas, dan program studi, daftar isi otomatis, Bab I-III, daftar pustaka APA dengan link valid) dengan dukungan rumus, gambar, dan pemeriksaan isi otomatis. Pakai skill ini hanya bila pengguna secara eksplisit menyebut makalah-unri-si, Sistem Informasi, SI, atau FMIPA. Untuk permintaan makalah umum tanpa penyebutan itu, pakai makalah-unri."
+name: "makalah-universal"
+description: "Membuat makalah kuliah berbahasa Indonesia dalam format .docx siap kumpul untuk berbagai perguruan tinggi. Format dokumen menyesuaikan universitas/fakultas/program studi pengguna lewat references/formats.json; bawaan format umum Indonesia. Mendukung cover individu dan kelompok, daftar isi otomatis, penomoran heading dan halaman, rumus Word (equation), gambar, serta daftar pustaka APA dengan link valid. Pakai skill ini untuk setiap permintaan makalah. Sebelum mulai, tanya jenis (individu/kelompok), universitas, fakultas, dan program studi."
 ---
 
-# Makalah UNRI Sistem Informasi (docx) v4
+# Makalah Universal (docx) v5
 
-Skill ini sama persis dengan `makalah-unri`; satu-satunya beda ada di cover. Di atas "UNIVERSITAS RIAU" selalu tercantum dua baris tebal: "FAKULTAS MATEMATIKA DAN ILMU PENGETAHUAN ALAM" dan "PROGRAM STUDI SISTEM INFORMASI". Keduanya bisa diganti lewat `meta.fakultas` dan `meta.prodi` (isi string kosong untuk menyembunyikan).
+Skill ini menghasilkan makalah Bahasa Indonesia dalam format `.docx` yang siap dikumpulkan. Format dokumen tidak terkunci ke satu kampus: dipilih dari `references/formats.json` berdasarkan data kampus pengguna. Bila tidak ada format yang cocok, dipakai format umum perguruan tinggi Indonesia.
 
-Skill ini menghasilkan makalah Bahasa Indonesia dengan format yang sudah disepakati, sehingga pengguna tidak perlu menjelaskan format dari awal. Format, daftar isi, rumus, gambar, dan pemeriksaan isi dikerjakan oleh skrip. Tugas utama Claude: mengumpulkan input, memverifikasi referensi, menulis isi, lalu menjalankan skrip.
-
-Semua perintah dijalankan dari folder skill ini (atau pakai path absolut ke folder ini). Skrip tidak bergantung pada path khusus; berkas sementara dibuat di folder sementara sistem.
+Semua perintah dijalankan dari folder skill ini (atau pakai path absolut). Skrip tidak bergantung pada path khusus; berkas sementara dibuat di folder sementara sistem.
 
 ## Alur kerja
 
 1. **Kumpulkan input.** Tanya hanya yang belum diberikan, jangan lebih dari beberapa pertanyaan sekaligus:
+   - **Jenis makalah: individu atau kelompok?** Bila kelompok, jumlah anggota (default 4). Individu berarti `meta.jumlah_anggota = 1`.
+   - **Universitas, fakultas, dan program studi.** Dipakai memilih format. Utamakan format Universitas Riau bila kampusnya UNRI dan format prodinya tersedia.
    - Materi atau poin bahasan, judul makalah, mata kuliah, nama dosen pengampu.
-   - Referensi dari pengguna (DOI, link, PDF). Boleh ditambah referensi lain yang valid.
-   - **Syarat referensi** (empat hal yang hampir selalu diminta, tanyakan bila belum disebut): jumlah sumber, rentang tahun terbit, minimal yang berbahasa Indonesia, dan apakah ada studi kasus. Simpan di `meta.ref_config` (lihat `references/schema.md`) supaya diperiksa otomatis.
-   - Jumlah anggota (default 4). Nama dan NIM dibiarkan placeholder, pengguna mengedit sendiri.
-   - Logo: pakai `assets/logo_unri.png` kecuali pengguna mengunggah logo lain.
-   - Format lain memakai default di bawah, kecuali pengguna menyebut berbeda.
-2. **Cari dan verifikasi referensi** (lihat bagian Referensi: tentukan dulu mode pencarian, Consensus atau pencarian web). Jangan menulis isi sebelum tahu sumber mana yang benar-benar bisa dipakai. Catat hasilnya di `verifikasi_referensi` dan `sumber_dibuang` pada `content.json`.
-3. **Tulis `content.json`** sesuai `references/schema.md`. Isi makalah mengikuti bagian Menulis isi. Rumus ditulis dengan LaTeX (lihat schema), gambar lewat blok `image`.
-4. **Bangun dengan satu perintah:**
+   - Referensi dari pengguna (DOI, link, PDF); boleh ditambah referensi lain yang valid.
+   - Syarat referensi (jumlah, rentang tahun terbit, minimal berbahasa Indonesia, ada/tidak studi kasus) bila belum disebut. Simpan di `meta.ref_config`.
+   - Logo: pakai logo format terpilih bila ada (mis. UNRI). Pengguna boleh mengunggah logo sendiri lewat `meta.logo`.
+2. **Pilih format.** Bila pengguna menyebut format tertentu, isi `meta.format` dengan id-nya (contoh `unri:fmipa:si`, `ugm:feb`). Tanpa itu, format dipilih otomatis dari `meta.universitas`/`meta.fakultas`/`meta.prodi`; bila tidak cocok, format umum (`default`). Detail di bagian Pemilihan format.
+3. **Cari dan verifikasi referensi** (lihat bagian Referensi). Jangan menulis isi sebelum tahu sumber mana yang benar-benar bisa dipakai. Catat hasilnya di `verifikasi_referensi` dan `sumber_dibuang`.
+4. **Tulis `content.json`** sesuai `references/schema.md`. Rumus ditulis dengan LaTeX, gambar lewat blok `image`.
+5. **Bangun dengan satu perintah:**
    ```bash
    python3 scripts/build.py content.json hasil/Makalah_<Judul>.docx --tabel --preview
    ```
-   Perintah ini berurutan: (1) `check_content.py` memeriksa isi dan berhenti bila ada galat, (2) `build_makalah.js` membangun docx, (3) mendeteksi apakah LibreOffice bisa menggambar rumus, (4) `finalize.py` mengisi daftar isi dan nomor halaman, (5) validasi struktur docx dan cek rumus lewat pandoc, (6) `preview.sh` merender halaman penting ke PNG. `--tabel` mencetak tabel status referensi; `--strict` membuat peringatan ikut menghentikan build.
-5. **Perbaiki galat dan tinjau peringatan.** Galat (sitasi di Bab III atau studi kasus, sitasi tanpa entri pustaka atau sebaliknya, daftar pustaka tidak urut abjad, jumlah atau tahun referensi di luar syarat, rumus rusak) harus dibereskan. Peringatan (em dash, kata gemar AI, pembuka klise, entri tanpa link) ditinjau dan diperbaiki bila memang benar.
-6. **Cek visual.** Lihat PNG di folder `*_preview/`: cover, daftar isi, halaman pertama tiap bab, halaman berisi rumus atau gambar, dan daftar pustaka. Pastikan cover satu halaman, nomor halaman sesuai, dan entri daftar pustaka rata kiri-kanan dengan baris kedua menjorok. Bila LibreOffice di mesin tidak punya modul Math, rumus tampil kosong di preview; itu keterbatasan tampilan, rumusnya tersimpan sebagai equation Word dan lolos cek pandoc.
-7. **Serahkan** file `.docx` hasil `build.py` (bukan berkas sementara) memakai tool pengirim file yang tersedia di sesi. Di ringkasan akhir, tulis:
-   - apa yang perlu diedit pengguna (nama, NIM, bulan-tahun di kata pengantar),
-   - tabel status referensi dari `--tabel` (sumber, tahun, bahasa, disitasi di bab mana, ditemukan lewat apa, dicek lewat apa, link) dan daftar sumber yang dibuang beserta alasannya,
-   - bila nomor halaman daftar isi dihitung dari perkiraan (ada rumus dan LibreOffice tanpa Math), minta pengguna klik kanan daftar isi lalu **Update Field** di Word.
+   Urutannya: `check_content.py` -> `build_makalah.js` -> cek dukungan rumus LibreOffice -> `finalize.py` -> validasi struktur -> `preview.sh`. `--tabel` mencetak tabel status referensi; `--strict` menjadikan peringatan sebagai galat.
+6. **Perbaiki galat dan tinjau peringatan.** Galat (sitasi di Bab III atau studi kasus, sitasi tanpa entri pustaka atau sebaliknya, daftar pustaka tidak urut abjad, jumlah atau tahun referensi di luar syarat, rumus rusak) harus dibereskan. Peringatan ditinjau dan diperbaiki bila memang benar.
+7. **Cek visual.** Lihat PNG di folder `*_preview/`: cover, daftar isi, halaman pertama tiap bab, halaman berisi rumus/gambar, dan daftar pustaka. Pastikan cover satu halaman, nomor halaman sesuai, dan entri daftar pustaka rata kiri-kanan dengan baris kedua menjorok. Bila LibreOffice di mesin tidak punya modul Math, rumus tampil kosong di preview; itu keterbatasan tampilan, rumusnya tersimpan sebagai equation Word dan lolos cek pandoc.
+8. **Serahkan** file `.docx` hasil `build.py` (bukan berkas sementara). Di ringkasan akhir tulis:
+   - yang perlu diedit pengguna (nama, NIM, bulan-tahun di kata pengantar),
+   - tabel status referensi dari `--tabel` dan daftar sumber yang dibuang beserta alasannya,
+   - bila nomor halaman daftar isi dihitung dari perkiraan, minta pengguna klik kanan daftar isi lalu **Update Field** di Word.
 
-## Format yang sudah dipasang skrip (jangan diubah tanpa diminta)
+## Pemilihan format
 
-- A4, margin 4-3-3-3 dibaca sebagai kiri 4 cm, atas 3, kanan 3, bawah 3. Times New Roman 12, spasi 1,5, rata kiri-kanan. Cover ukuran 14.
+`references/formats.json` adalah daftar format. Prioritas pemilihan:
+1. `meta.format` = id eksplisit (mis. `unri:fmipa:si`).
+2. Pencocokan otomatis: nama universitas (paling kuat), lalu fakultas dan program studi.
+3. Tidak ada yang cocok: format umum (`default`): A4, margin 4-3-3-3 cm, Times New Roman 12, spasi 1,5, rata kiri-kanan, cover tanpa logo, daftar pustaka APA 7.
+
+Format awal yang tersedia:
+- `default` - format umum perguruan tinggi Indonesia
+- `unri:fmipa:si` - Sistem Informasi FMIPA Universitas Riau
+- `unri:fakultas-teknik` - Fakultas Teknik Universitas Riau
+- `unri:fakultas-pertanian` - Fakultas Pertanian Universitas Riau
+- `ugm:feb` - Fakultas Ekonomika dan Bisnis Universitas Gadjah Mada
+- `ugm:kimia` - Program Studi Kimia Universitas Gadjah Mada
+
+Cara menambah format: salin salah satu entri di `references/formats.json`, lalu isi field `id`, `nama`, `kampus`, `fakultas`, `prodi`, `logo`, `margin`, `spasi`, `font`, `ukuran_font`, `cover_ukuran_font`, `cover_susunan`, dan `sumber` (tautan pedoman resmi). `cover_susunan` menentukan urutan baris identitas di cover (mis. `["prodi", "fakultas"]`). Jangan mengubah konstanta margin/font di skrip untuk kebutuhan satu format; tambahkan entri format sebagai gantinya.
+
+## Format dokumen (umum)
+
+- A4; margin, spasi, font, dan ukuran font mengikuti format terpilih (bawaan: 4-3-3-3 cm, Times New Roman 12, spasi 1,5). Cover memakai `cover_ukuran_font` format itu.
 - Urutan: cover, daftar isi, kata pengantar, Bab I-III, daftar pustaka.
-- Cover selalu menampilkan baris fakultas dan program studi di atas nama universitas. Keduanya bisa diganti lewat `meta.fakultas` dan `meta.prodi`.
-- Placeholder NIM di cover: `( NIM )`.
-- Cover dihitung halaman i tetapi nomornya tidak tampil. Daftar isi dan kata pengantar bernomor romawi di tengah bawah. Bab I sampai III bernomor angka mulai 1 di kanan bawah. Daftar pustaka tanpa nomor yang terlihat.
-- Penomoran heading 1.1, 1.2, 2.1, dan sub-subbab 2.4.1. Paragraf di bawah subbab sejajar dengan teks subbab (bukan dengan angkanya), dan baris pertama tetap menjorok.
-- Daftar isi otomatis (field TOC, level 1-3). Entri pertama adalah "HALAMAN JUDUL": teks kecil berwarna putih (Heading 1) di paling atas cover, tidak terlihat di cover tetapi muncul di daftar isi dengan halaman i. "DAFTAR ISI" (halaman ii) dan "DAFTAR PUSTAKA" juga Heading 1 sehingga ikut masuk daftar isi.
-- Semua Heading 1 memakai spasi sebelum 0 dan setelah 12 pt. Ini sudah permanen di skrip, tidak perlu patch tambahan.
-- Daftar pustaka gaya APA 7, urut abjad, menggantung (hanging indent) dan sekaligus rata kiri-kanan (justified). Keduanya berlaku bersamaan dan sudah dipasang di skrip; jangan diganti ke rata kiri.
-- Rumus: blok `equation` menjadi equation Word (OMML) yang bisa diedit, dengan nomor (1), (2), ... bila `nomor: true`. Rumus sebaris ditulis `$...$` di dalam teks.
-- Gambar: blok `image` dengan keterangan "Gambar n." otomatis di bawahnya, opsional baris "Sumber: ...".
-- Hindari tabel. Maksimal satu tabel per makalah (ubah lewat `meta.maks_tabel` bila diminta), dan hanya bila datanya memang tabular.
+- Cover: judul, logo (bila format punya), "Disusun untuk memenuhi tugas mata kuliah ...", "Dosen Pengampu: ...", "Disusun oleh:" + tabel identitas, baris institusi sesuai `cover_susunan`, lalu tahun. Individu: satu baris "Nama Mahasiswa" tanpa nomor. Kelompok: nomor, "Nama Anggota n", NIM. Placeholder NIM: `( NIM )`.
+- Cover dihitung halaman i tetapi nomornya disembunyikan. Daftar isi dan kata pengantar bernomor romawi di tengah bawah. Bab I dst bernomor angka mulai 1 di kanan bawah (posisi mengikuti format). Daftar pustaka tanpa nomor yang terlihat.
+- Penomoran heading 1.1, 1.2, 2.1, dan sub-subbab 2.4.1. Paragraf di bawah subbab sejajar dengan teks subbab (bukan angkanya), baris pertama tetap menjorok.
+- Daftar isi otomatis (field TOC, level 1-3). Entri pertama adalah "HALAMAN JUDUL": Heading 1 teks kecil berwarna putih di paling atas cover, tidak terlihat di cover tetapi muncul di daftar isi dengan halaman i.
+- Semua Heading 1 memakai spasi sebelum 0 dan setelah 12 pt (permanen di skrip).
+- Daftar pustaka gaya APA 7, urut abjad, menggantung (hanging indent) sekaligus rata kiri-kanan (justified).
+- Rumus: blok `equation` menjadi equation Word (OMML) yang bisa diedit, dengan nomor opsional. Rumus sebaris ditulis `$...$`. Gambar: blok `image` dengan keterangan "Gambar n." otomatis.
+- Hindari tabel (maksimal satu per makalah, ubah lewat `meta.maks_tabel`).
 
 ## Menulis isi
 
@@ -107,6 +121,8 @@ Sebelum mencari sumber, tentukan dulu mode pencariannya. Tidak perlu bertanya ke
 - Jangan menganggap hasil Consensus sudah valid. Metadata dan link tetap dicek ke laman asli sebelum masuk daftar pustaka.
 - Jangan memakai Consensus tanpa tiga filter default (open access, tanpa preprint, 5 tahun terakhir) kecuali pengguna menggantinya di prompt, dan jangan menambah filter lain tanpa diminta.
 - Jangan bertanya ke pengguna apakah Consensus terpasang atau kuotanya habis; cek sendiri lewat tool dan galatnya.
+- Jangan lupa bertanya jenis individu/kelompok serta universitas/fakultas/prodi sebelum membangun. Menebak jumlah anggota atau kampus membuat cover salah.
+- Jangan mengutak-atik konstanta margin/font di skrip untuk satu kampus; tambahkan entri di `references/formats.json`.
 - Serahkan hasil `build.py`, bukan berkas mentah, karena daftar isi di berkas mentah kosong.
 - Jangan membuang sumber hanya karena tidak punya DOI. Coba DOAJ, Garuda, laman jurnal, repositori, atau ResearchGate dulu.
 - Jangan menaruh sitasi atau kutipan di Bab III maupun studi kasus. Validator akan menghentikan build.
@@ -114,5 +130,4 @@ Sebelum mencari sumber, tentukan dulu mode pencariannya. Tidak perlu bertanya ke
 - Rumus jangan ditulis sebagai teks biasa seperti "n!/(r!(n-r)!)". Pakai blok `equation` atau `$...$`. Perintah LaTeX di luar daftar yang didukung sengaja menimbulkan galat saat build; ganti dengan padanan yang didukung.
 - Jangan menaruh tabel kecil untuk hal yang bisa ditulis sebagai kalimat.
 - Nama, NIM, dan bulan-tahun kata pengantar dibiarkan placeholder dan disebut di ringkasan akhir.
-- Bila pengguna meminta perubahan format (misalnya margin lain), ubah konstanta di `scripts/build_makalah.js` untuk makalah itu saja dan sebutkan perubahannya.
 - Bila pengguna ingin makalah sebagai PPT atau ringkasan, itu pekerjaan terpisah: gunakan isi makalah sebagai bahan.

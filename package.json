@@ -1,0 +1,27 @@
+{
+  "name": "makalah-universal",
+  "version": "5.0.0",
+  "description": "Generate Indonesian university papers (makalah) as .docx from a content.json, with per-program-study formatting (default, Universitas Riau, UGM, and more), individual or group covers.",
+  "main": "scripts/build_makalah.js",
+  "scripts": {
+    "build": "python3 scripts/build.py",
+    "check": "python3 scripts/check_content.py",
+    "preview": "bash scripts/preview.sh"
+  },
+  "keywords": [
+    "makalah",
+    "skripsi",
+    "docx",
+    "universitas",
+    "riau",
+    "laporan"
+  ],
+  "author": "Kurniawan Hafiz",
+  "license": "MIT",
+  "dependencies": {
+    "docx": "^9.15.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

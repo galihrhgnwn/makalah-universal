@@ -23,21 +23,47 @@ const contentDir = path.dirname(path.resolve(contentPath));
 const data = JSON.parse(fs.readFileSync(contentPath, "utf8"));
 const meta = data.meta || {};
 
-// varian (umum atau Sistem Informasi) dibaca dari variant.json di folder skill
-let variant = { varian: "umum", fakultas_default: "", prodi_default: "" };
-try { variant = { ...variant, ...JSON.parse(fs.readFileSync(path.join(__dirname, "..", "variant.json"), "utf8")) }; } catch (e) { /* pakai bawaan */ }
+// Format dipilih dari references/formats.json berdasarkan meta (format / universitas / fakultas / prodi).
+const FORMATS = (() => {
+  try { return JSON.parse(fs.readFileSync(path.join(__dirname, "..", "references", "formats.json"), "utf8")); }
+  catch (e) { return []; }
+})();
+const DEFAULT_FORMAT = FORMATS.find((f) => f.id === "default") || {
+  id: "default", nama: "Format umum", margin: { atas: 3, kiri: 4, kanan: 3, bawah: 3 },
+  spasi: 1.5, font: "Times New Roman", ukuran_font: 12, cover_ukuran_font: 14,
+};
+const normKey = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+function pickFormat(meta) {
+  if (meta.format) { const f = FORMATS.find((x) => x.id === meta.format); if (f) return f; }
+  const mu = normKey(meta.universitas), mf = normKey(meta.fakultas), mp = normKey(meta.prodi);
+  let best = DEFAULT_FORMAT, score = 0;
+  for (const f of FORMATS) {
+    if (f.id === "default") continue;
+    let s = 0;
+    if (mu && f.kampus && normKey(f.kampus) === mu) s += 10;
+    if (mf && f.fakultas && normKey(f.fakultas).includes(mf)) s += 5;
+    if (mp && f.prodi && normKey(f.prodi).includes(mp)) s += 5;
+    if (s > score) { score = s; best = f; }
+  }
+  return best;
+}
+const format = pickFormat(meta);
+const CM = 567; // twip per cm
+const M = { atas: 3, kiri: 4, kanan: 3, bawah: 3, ...(format.margin || {}) };
+const FONT = format.font || "Times New Roman";
+const BODY_SIZE = format.ukuran_font || 12;
+const SZ = BODY_SIZE * 2; // ukuran teks isi dalam half-point
+const COVER_SIZE = (format.cover_ukuran_font || 14) * 2; // half-point
 
 const resolveFromContent = (p) => (path.isAbsolute(p) ? p : path.join(contentDir, p));
-const logoPath = logoArg || (meta.logo ? resolveFromContent(meta.logo) : path.join(__dirname, "..", "assets", "logo_unri.png"));
+const logoPath = logoArg || (meta.logo ? resolveFromContent(meta.logo) : (format.logo ? path.join(__dirname, "..", format.logo) : ""));
 
-const FONT = "Times New Roman";
-const TEXT_W = 7937; // A4 21cm - kiri 4cm - kanan 3cm
-const IND1 = 567;    // teks subbab (1.1)
-const IND2 = 1361;   // teks sub-subbab (1.1.1)
-const SP = { line: 360, lineRule: LineRuleType.AUTO, before: 0, after: 0 };
+const TEXT_W = 11906 - (M.kiri + M.kanan) * CM; // lebar teks = A4 dikurangi margin kiri+kanan
+const IND1 = 567;
+const IND2 = 1361;
+const SP = { line: Math.round((format.spasi || 1.5) * 240), lineRule: LineRuleType.AUTO, before: 0, after: 0 };
 const J = AlignmentType.JUSTIFIED;
 const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
-const CM = 567; // twip per cm
 const PX_PER_CM = 37.795;
 
 let ctx = ""; // letak blok yang sedang diproses, untuk pesan galat
@@ -48,7 +74,7 @@ const mathComponent = (xml) => ImportedXmlComponent.fromXmlString(xml).root[0];
 function inlineMath(latex) {
   if (PAGINASI) {
     const n = Math.max(2, latex.replace(/\\[A-Za-z]+|[{}^_\s]/g, "").length);
-    return new TextRun({ text: "x".repeat(n), font: FONT, size: 24 });
+    return new TextRun({ text: "x".repeat(n), font: FONT, size: SZ });
   }
   try { return mathComponent(inlineOmml(latex)); }
   catch (e) { throw new Error(`Rumus sebaris tidak valid di ${ctx}: ${e.message}\n  $${latex}$`); }
@@ -62,12 +88,12 @@ function runs(text, o = {}) {
     if (idx % 2 === 1) { out.push(inlineMath(part)); return; }
     String(part.replace(/\\\$/g, "$")).split(/(\*[^*]+\*)/).filter(Boolean).forEach((seg) => {
       const it = seg.length > 2 && seg.startsWith("*") && seg.endsWith("*");
-      out.push(new TextRun({ text: it ? seg.slice(1, -1) : seg, font: FONT, size: 24, ...o, italics: it || o.italics }));
+      out.push(new TextRun({ text: it ? seg.slice(1, -1) : seg, font: FONT, size: SZ, ...o, italics: it || o.italics }));
     });
   });
   return out;
 }
-const run = (t, o = {}) => new TextRun({ text: t, font: FONT, size: 24, ...o });
+const run = (t, o = {}) => new TextRun({ text: t, font: FONT, size: SZ, ...o });
 
 const bodyKP = (t) => new Paragraph({ alignment: J, indent: { firstLine: 709 }, spacing: SP, children: runs(t) });
 const body = (t, left) => new Paragraph({ alignment: J, indent: { left, firstLine: 709 }, spacing: SP, children: runs(t) });
@@ -205,7 +231,7 @@ function renderBlocks(blocks, left) {
       numberingConfigs.push({
         reference: ref,
         levels: [{ level: 0, format: LevelFormat.DECIMAL, text: "%1.", alignment: AlignmentType.LEFT,
-          style: { paragraph: { indent: { left: left + 425, hanging: 425 } }, run: { font: FONT, size: 24 } } }],
+          style: { paragraph: { indent: { left: left + 425, hanging: 425 } }, run: { font: FONT, size: SZ } } }],
       });
       for (const it of b.items) out.push(new Paragraph({ numbering: { reference: ref, level: 0 }, alignment: J, spacing: SP, children: runs(it) }));
     } else if (b.t === "table") {
@@ -225,16 +251,22 @@ function renderBlocks(blocks, left) {
 }
 
 // ---------- COVER ----------
-const C = (text, o = {}) => new Paragraph({ alignment: AlignmentType.CENTER, spacing: SP, children: [run(text, { size: 28, ...o })] });
+const C = (text, o = {}) => new Paragraph({ alignment: AlignmentType.CENTER, spacing: SP, children: [run(text, { size: COVER_SIZE, ...o })] });
 const nameCell = (txt, w) =>
   new TableCell({ width: { size: w, type: WidthType.DXA }, borders: noBorders, margins: { top: 20, bottom: 20, left: 60, right: 60 },
-    children: [new Paragraph({ spacing: { line: 276, lineRule: LineRuleType.AUTO, before: 0, after: 0 }, children: [run(txt, { size: 28 })] })] });
-const nameW = [500, 4437, 3000];
-const anggota = meta.jumlah_anggota || 4;
+    children: [new Paragraph({ spacing: { line: 276, lineRule: LineRuleType.AUTO, before: 0, after: 0 }, children: [run(txt, { size: COVER_SIZE })] })] });
+const nameW = [500, Math.max(2500, TEXT_W - 1600), 1100];
+const _anggotaRaw = Number(meta.jumlah_anggota);
+const anggota = Number.isFinite(_anggotaRaw) && _anggotaRaw > 0 ? Math.max(1, Math.round(_anggotaRaw)) : (_anggotaRaw === 0 ? 1 : 4);
+const nameRows = Array.from({ length: anggota }, (_, i) => {
+  const n = i + 1;
+  const label = anggota === 1 ? "Nama Mahasiswa" : `Nama Anggota ${n}`;
+  const num = anggota === 1 ? "" : `${n}.`;
+  return new TableRow({ children: [nameCell(num, nameW[0]), nameCell(label, nameW[1]), nameCell("( NIM )", nameW[2])] });
+});
 const nameTable = new Table({
-  alignment: AlignmentType.CENTER, width: { size: 7937, type: WidthType.DXA }, columnWidths: nameW,
-  rows: Array.from({ length: anggota }, (_, i) => i + 1).map((n) =>
-    new TableRow({ children: [nameCell(`${n}.`, nameW[0]), nameCell(`Nama Anggota ${n}`, nameW[1]), nameCell("( NIM )", nameW[2])] })),
+  alignment: AlignmentType.CENTER, width: { size: TEXT_W, type: WidthType.DXA }, columnWidths: nameW,
+  rows: nameRows,
 });
 // "HALAMAN JUDUL": Heading 1 kecil berwarna putih di paling atas cover, supaya masuk daftar isi otomatis
 const coverHeading = new Paragraph({
@@ -257,12 +289,15 @@ if (fs.existsSync(logoPath)) {
       altText: { title: "Logo", description: "Logo universitas", name: "logo" } })] }));
 }
 cover.push(C(""), C("Disusun oleh:"), nameTable, C(""));
-// fakultas dan prodi: nilai bawaan datang dari variant.json; meta.* menimpa, string kosong menyembunyikan
-const fakultas = meta.fakultas !== undefined ? meta.fakultas : variant.fakultas_default;
-const prodi = meta.prodi !== undefined ? meta.prodi : variant.prodi_default;
-if (fakultas) cover.push(C(String(fakultas).toUpperCase(), { bold: true }));
-if (prodi) cover.push(C(String(prodi).toUpperCase(), { bold: true }));
-cover.push(C(meta.universitas || "UNIVERSITAS RIAU", { bold: true }), C(String(meta.tahun || new Date().getFullYear()), { bold: true }));
+// Baris identitas (fakultas/jurusan/prodi) mengikuti urutan format terpilih; meta.* menimpa, string kosong menyembunyikan.
+const coverLines = (format.cover_susunan || []).map((key) => {
+  const val = meta[key] !== undefined ? meta[key] : format[key];
+  return val ? String(val).toUpperCase() : "";
+}).filter(Boolean);
+for (const line of coverLines) cover.push(C(line, { bold: true }));
+const univ = meta.universitas || format.kampus || "";
+if (univ) cover.push(C(String(univ).toUpperCase(), { bold: true }));
+cover.push(C(String(meta.tahun || new Date().getFullYear()), { bold: true }));
 
 // ---------- KATA PENGANTAR ----------
 ctx = "kata pengantar";
@@ -308,21 +343,21 @@ const dapus = [
 
 // ---------- DOKUMEN ----------
 const page = (pageNumbers) => ({
-  page: { size: { width: 11906, height: 16838 }, margin: { top: 1701, right: 1701, bottom: 1701, left: 2268, header: 709, footer: 709 }, pageNumbers },
+  page: { size: { width: 11906, height: 16838 }, margin: { top: M.atas * CM, right: M.kanan * CM, bottom: M.bawah * CM, left: M.kiri * CM, header: 709, footer: 709 }, pageNumbers },
 });
 const emptyFooter = () => new Footer({ children: [new Paragraph({ children: [run("")] })] });
-const numFooter = (align) => new Footer({ children: [new Paragraph({ alignment: align, children: [new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: 24 })] })] });
+const numFooter = (align) => new Footer({ children: [new Paragraph({ alignment: align, children: [new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: SZ })] })] });
 const heading = (id, name, extra) => ({
   id, name, basedOn: "Normal", next: "Normal", quickFormat: true,
-  run: { font: FONT, size: 24, bold: true, color: "000000" },
+  run: { font: FONT, size: SZ, bold: true, color: "000000" },
   paragraph: { spacing: SP, keepNext: true, ...extra },
 });
-const toc = (id, name, left) => ({ id, name, basedOn: "Normal", next: "Normal", run: { font: FONT, size: 24 }, paragraph: { spacing: SP, indent: { left } } });
+const toc = (id, name, left) => ({ id, name, basedOn: "Normal", next: "Normal", run: { font: FONT, size: SZ }, paragraph: { spacing: SP, indent: { left } } });
 
 const doc = new Document({
   creator: "Kelompok", title: meta.judul || "Makalah",
   styles: {
-    default: { document: { run: { font: FONT, size: 24 }, paragraph: { spacing: SP } } },
+    default: { document: { run: { font: FONT, size: SZ }, paragraph: { spacing: SP } } },
     paragraphStyles: [
       // Heading 1: spasi sebelum 0 dan setelah 12 pt (240 twip) supaya tidak rapat ke teks di bawahnya
       heading("Heading1", "Heading 1", { alignment: AlignmentType.CENTER, outlineLevel: 0, spacing: { ...SP, after: 240 } }),
@@ -356,5 +391,5 @@ const all = [
 fs.writeFileSync(headingsPath, JSON.stringify(all, null, 1));
 Packer.toBuffer(doc).then((buf) => {
   fs.writeFileSync(outPath, buf);
-  console.log("ok", outPath, `| varian: ${variant.varian} | tabel: ${tableCount} | gambar: ${figCount} | rumus: ${eqCount}${PAGINASI ? " | PAGINASI" : ""}`);
+  console.log("ok", outPath, `| format: ${format.id} | tabel: ${tableCount} | gambar: ${figCount} | rumus: ${eqCount}${PAGINASI ? " | PAGINASI" : ""}`);
 }).catch((e) => { console.error(e.message); process.exit(1); });
