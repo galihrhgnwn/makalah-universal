@@ -2,7 +2,7 @@
 
 A tool that builds **Indonesian-language university papers (makalah)** as ready-to-submit `.docx` files, for many universities. The document format adapts to the user's university, faculty, and study program; when no match exists, a general Indonesian university format is used.
 
-> **Made by Kurniawan Hafiz** | Version 5.0.0 | [Bahasa Indonesia](README.md)
+> **Forked** | Credit: Kurniawan Hafiz | Version 5.0.0 | [Bahasa Indonesia](README.md)
 
 ## What's new in v5
 
@@ -171,4 +171,4 @@ Important new fields:
 
 ## License and credit
 
-MIT licensed (see [LICENSE](LICENSE)). Made by **Kurniawan Hafiz**. Campus formats are compiled from each faculty/program's official guidelines (links in `references/formats.json`).
+MIT licensed (see [LICENSE](LICENSE)). Credit: **Kurniawan Hafiz**. Campus formats are compiled from each faculty/program's official guidelines (links in `references/formats.json`).

@@ -2,7 +2,7 @@
 
 Generator **makalah kuliah berbahasa Indonesia** dalam format `.docx` siap kumpul, untuk berbagai perguruan tinggi. Format dokumen menyesuaikan universitas, fakultas, dan program studi pengguna; bila tidak ada yang cocok, dipakai format umum yang lazim di perguruan tinggi Indonesia.
 
-> **Dibuat oleh Kurniawan Hafiz** | Versi 5.0.0 | [English](README.en.md)
+> **Forked** | Credit: Kurniawan Hafiz | Versi 5.0.0 | [English](README.en.md)
 
 ## Apa yang baru di v5
 
@@ -171,4 +171,4 @@ Field baru yang penting:
 
 ## Lisensi dan kredit
 
-Dirilis dengan lisensi MIT (lihat [LICENSE](LICENSE)). Dibuat oleh **Kurniawan Hafiz**. Format kampus dihimpun dari pedoman resmi masing-masing fakultas/prodi (tautan ada di `references/formats.json`).
+Dirilis dengan lisensi MIT (lihat [LICENSE](LICENSE)). Credit: **Kurniawan Hafiz**. Format kampus dihimpun dari pedoman resmi masing-masing fakultas/prodi (tautan ada di `references/formats.json`).
